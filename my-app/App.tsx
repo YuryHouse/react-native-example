@@ -1,88 +1,80 @@
 import {
-    Alert,
     StyleSheet,
     Text,
     View,
-    Modal,
-    Pressable
+    FlatList,
+    ListRenderItem,
+    Dimensions
 } from 'react-native';
-import {useState} from "react";
+import {useCallback} from "react";
+import {StatusBar} from "expo-status-bar";
+
+const {width, height} = Dimensions.get('screen');
+
+const WIDTH = width;
+const HEIGHT = height;
+const PADDING = 10;
+
+type ArrayDataType = {
+    id: number
+    title: string
+    count: number
+}
+
+const arrayData: ArrayDataType[] = new Array(100)
+    .fill(null)
+    .map((_, index) => ({
+        id: index + 1,
+        title: `Title_${index + 1}`,
+        count: (index + 1) * 5,
+    }))
 
 export default function App() {
-    const [modalVisible, setModalVisible] = useState(false);
+    const renderItem: ListRenderItem<ArrayDataType> = useCallback(({item, index, separators}) => (
+        <View style={[styles.item, {backgroundColor: index % 3 ? 'tomato' : 'violet'}]}>
+            <Text style={styles.title}>{item.title}</Text>
+            <Text style={styles.price}>{item.count}$</Text>
+        </View>
+    ), []);
+
+    const keyExtractor = useCallback((item: any, index: any) => `${item.title}.${index}`, []);
+
     return (
-        <View style={styles.centeredView}>
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                    Alert.alert("Modal has been closed.");
-                    setModalVisible(!modalVisible);
-                }}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalText}>Hello World!</Text>
-                        <Pressable
-                            style={[styles.button, styles.buttonClose]}
-                            onPress={() => setModalVisible(!modalVisible)}
-                        >
-                            <Text style={styles.textStyle}>Hide Modal</Text>
-                        </Pressable>
-                    </View>
-                </View>
-            </Modal>
-            <Pressable
-                style={[styles.button, styles.buttonOpen]}
-                onPress={() => setModalVisible(true)}
-            >
-                <Text style={styles.textStyle}>Show Modal</Text>
-            </Pressable>
+        <View style={styles.container}>
+            <Text>123123</Text>
+            <FlatList
+                data={arrayData}
+                numColumns={2}
+                columnWrapperStyle={{justifyContent: "space-between"}}
+                contentContainerStyle={{paddingHorizontal: PADDING}}
+                renderItem={renderItem}
+                keyExtractor={keyExtractor}/>
+            <StatusBar style="auto"/>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    centeredView: {
+    container: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        marginTop: 22
+        backgroundColor: '#fff',
+        marginTop: 50
     },
-    modalView: {
-        margin: 20,
-        backgroundColor: "white",
-        borderRadius: 20,
-        padding: 35,
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5
+    item: {
+        width: (WIDTH - PADDING * 2) / 2 - (PADDING / 2),
+        height: (WIDTH - PADDING * 2) / 2 - (PADDING / 2),
+        backgroundColor: 'violet',
+        marginVertical: 5,
     },
-    button: {
-        borderRadius: 20,
-        padding: 10,
-        elevation: 2
+    title: {
+        fontSize: 22,
+        fontWeight: '600',
+        lineHeight: 26
     },
-    buttonOpen: {
-        backgroundColor: "#F194FF",
+    price: {
+        fontSize: 16,
+        fontWeight: '500',
+        backgroundColor:'#bcf879',
+        color: '#e90404'
     },
-    buttonClose: {
-        backgroundColor: "#2196F3",
-    },
-    textStyle: {
-        color: "white",
-        fontWeight: "bold",
-        textAlign: "center"
-    },
-    modalText: {
-        marginBottom: 15,
-        textAlign: "center"
-    }
 });
